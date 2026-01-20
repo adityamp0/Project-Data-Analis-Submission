@@ -50,7 +50,7 @@ sns.set_palette("bright")
 @st.cache_data
 def load_data():
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(current_dir, "all_data.csv")
+    file_path = os.path.join(current_dir, "main_data.csv")
     df = pd.read_csv(file_path)
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     return df
