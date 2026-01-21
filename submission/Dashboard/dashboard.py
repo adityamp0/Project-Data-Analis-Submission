@@ -8,12 +8,12 @@ import os
 # Set Page Config for a premium feel
 st.set_page_config(
     page_title="E-Commerce Analysis Dashboard",
-    page_icon="�️",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Dark Mode styling
+# Custom CSS for Premium styling
 st.markdown("""
     <style>
     .main {
@@ -32,12 +32,18 @@ st.markdown("""
     }
     .stMetric label {
         color: #9ca3af !important;
+        font-weight: 600;
     }
     .stMetric div[data-testid="stMetricValue"] {
         color: #60a5fa !important;
+        font-weight: 800;
     }
     h1, h2, h3 {
         color: #f3f4f6 !important;
+        font-family: 'Inter', sans-serif;
+    }
+    .reportview-container .main .block-container {
+        padding-top: 2rem;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -50,7 +56,15 @@ sns.set_palette("bright")
 @st.cache_data
 def load_data():
     current_dir = os.path.dirname(os.path.realpath(__file__))
+<<<<<<< HEAD
     file_path = os.path.join(current_dir, "main_data.csv")
+=======
+    # Try local main_data.csv first, then all_data.csv in parent
+    file_path = os.path.join(current_dir, "main_data.csv")
+    if not os.path.exists(file_path):
+        file_path = os.path.join(os.path.dirname(current_dir), "all_data.csv")
+    
+>>>>>>> c174b96 (Submission)
     df = pd.read_csv(file_path)
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     return df
@@ -58,16 +72,19 @@ def load_data():
 all_df = load_data()
 
 # Helper functions for data preparation
-def create_daily_orders_df(df):
-    daily_orders_df = df.resample(rule='D', on='order_purchase_timestamp').agg({
+def create_monthly_orders_df(df):
+    monthly_orders_df = df.resample(rule='M', on='order_purchase_timestamp').agg({
         "order_id": "nunique",
         "price": "sum"
     }).reset_index()
-    daily_orders_df.rename(columns={"order_id": "order_count", "price": "revenue"}, inplace=True)
-    return daily_orders_df
+    monthly_orders_df.rename(columns={"order_id": "order_count", "price": "revenue"}, inplace=True)
+    monthly_orders_df['month_name'] = monthly_orders_df['order_purchase_timestamp'].dt.strftime('%B %Y')
+    return monthly_orders_df
 
 def create_sum_order_items_df(df):
-    return df.groupby("product_category").order_item_id.count().sort_values(ascending=False).reset_index()
+    sum_order_items_df = df.groupby("product_category").order_item_id.count().sort_values(ascending=False).reset_index()
+    sum_order_items_df.rename(columns={"order_item_id": "product_count"}, inplace=True)
+    return sum_order_items_df
 
 def create_bystate_df(df):
     bystate_df = df.groupby(by="customer_state").customer_id.nunique().reset_index()
@@ -75,22 +92,12 @@ def create_bystate_df(df):
     bystate_df = bystate_df.sort_values(by="customer_count", ascending=False)
     return bystate_df
 
-def create_rfm_df(df):
-    rfm_df = df.groupby(by="customer_unique_id", as_index=False).agg({
-        "order_purchase_timestamp": "max",
-        "order_id": "nunique",
-        "price": "sum"
-    })
-    rfm_df.columns = ["customer_id", "max_order_timestamp", "frequency", "monetary"]
-    recent_date = df["order_purchase_timestamp"].max()
-    rfm_df["recency"] = rfm_df["max_order_timestamp"].apply(lambda x: (recent_date - x).days)
-    rfm_df.drop("max_order_timestamp", axis=1, inplace=True)
-    return rfm_df
-
 # Sidebar
 with st.sidebar:
-    st.image("https://raw.githubusercontent.com/dicodingacademy/assets/main/logo.png", width=200)
-    st.markdown("## Filters")
+    # Logo Placeholder
+    st.markdown("<h1 style='text-align: center; color: #60a5fa;'>📦 E-Shop</h1>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("### Filters")
     
     min_date = all_df["order_purchase_timestamp"].min()
     max_date = all_df["order_purchase_timestamp"].max()
@@ -107,108 +114,116 @@ with st.sidebar:
         st.stop()
 
 # Filter Main Data
-main_df = all_df[(all_df["order_purchase_timestamp"] >= str(start_date)) & 
-                (all_df["order_purchase_timestamp"] <= str(end_date))]
+main_df = all_df[(all_df["order_purchase_timestamp"] >= pd.to_datetime(start_date)) & 
+                (all_df["order_purchase_timestamp"] <= pd.to_datetime(end_date))]
 
 # Build Dataframes
-daily_orders_df = create_daily_orders_df(main_df)
+monthly_orders_df = create_monthly_orders_df(main_df)
 sum_order_items_df = create_sum_order_items_df(main_df)
 bystate_df = create_bystate_df(main_df)
-rfm_df = create_rfm_df(main_df)
 
 # Header
-st.title('🛍️ Public E-Commerce Dashboard')
-st.markdown("Wawasan mendalam mengenai performa penjualan, pelanggan, dan produk Anda.")
+st.title('🛍️ Public E-Commerce Analysis Dashboard')
+st.markdown("Dashboard ini menyajikan analisis mendalam berdasarkan data operasional tahun 2016-2018.")
 
-# Overview Metrics
-st.subheader("Business Overview")
+# Metrics Section
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Total Pesanan", value=f"{daily_orders_df.order_count.sum():,}")
+    total_orders = main_df.order_id.nunique()
+    st.metric("Total Pesanan", value=f"{total_orders:,}")
 with col2:
-    total_rev = daily_orders_df.revenue.sum()
-    st.metric("Total Pendapatan", value=format_currency(total_rev, "BRL", locale='pt_BR'))
+    total_revenue = main_df.price.sum()
+    st.metric("Total Pendapatan", value=format_currency(total_revenue, "BRL", locale='pt_BR'))
 with col3:
-    avg_order = main_df.groupby('order_id').price.sum().mean()
-    st.metric("Rata-rata Nilai Pesanan", value=format_currency(avg_order, "BRL", locale='pt_BR'))
+    total_customers = main_df.customer_id.nunique()
+    st.metric("Total Pelanggan", value=f"{total_customers:,}")
 
 st.markdown("---")
 
-# Row 1: Sales Trend
-st.subheader("📈 Tren Penjualan Harian")
+# Row 1: Monthly Sales Trend (Question 2)
+st.subheader("📈 Tren Penjualan Bulanan (Pertanyaan Bisnis 2)")
+st.caption("Visualisasi ini menjawab pola tren dan musiman penjualan selama periode pengamatan.")
+
 fig, ax = plt.subplots(figsize=(16, 6))
-ax.plot(daily_orders_df["order_purchase_timestamp"], daily_orders_df["order_count"], marker='o', linewidth=3, color="#00d4ff")
-ax.fill_between(daily_orders_df["order_purchase_timestamp"], daily_orders_df["order_count"], color="#00d4ff", alpha=0.15)
-ax.set_title("Jumlah Pesanan per Hari", fontsize=20, color="#ffffff")
+ax.plot(monthly_orders_df["order_purchase_timestamp"], monthly_orders_df["order_count"], marker='o', linewidth=3, color="#60a5fa")
+ax.fill_between(monthly_orders_df["order_purchase_timestamp"], monthly_orders_df["order_count"], color="#60a5fa", alpha=0.1)
+
+# Adding peaks highlights (optional but premium)
+max_order = monthly_orders_df.order_count.max()
+max_date_val = monthly_orders_df[monthly_orders_df.order_count == max_order].order_purchase_timestamp.iloc[0]
+ax.annotate(f'Peak: {max_order}', xy=(max_date_val, max_order), xytext=(max_date_val, max_order+200),
+            arrowprops=dict(facecolor='#f87171', shrink=0.05), fontsize=12, color="#f87171", fontweight='bold')
+
+ax.set_title("Jumlah Pesanan per Bulan", fontsize=20, color="#ffffff", pad=20)
 ax.set_xlabel(None)
 ax.set_ylabel("Jumlah Pesanan", fontsize=12, color="#ffffff")
-ax.grid(axis='y', linestyle='--', alpha=0.3)
+ax.grid(axis='y', linestyle='--', alpha=0.2)
 st.pyplot(fig)
 
-# Row 2: Products & Demographics
+with st.expander("Lihat Detail Insight Tren Bulanan"):
+    st.write("""
+    - **Tren Pertumbuhan**: Terlihat pertumbuhan signifikan dari akhir tahun 2016 hingga puncak di tahun 2017.
+    - **Pola Musiman**: Terdapat lonjakan tajam pada bulan **November**, yang bertepatan dengan periode Black Friday.
+    - **Stabilisasi**: Penjualan cenderung stabil dan tinggi sepanjang semester pertama tahun 2018.
+    """)
+
+st.markdown("---")
+
+# Row 2: Product Performance (Question 1)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("🏆 Produk Terlaris")
-    fig, ax = plt.subplots(figsize=(12, 10))
-    top_5 = sum_order_items_df.head(5)
-    sns.barplot(x="order_item_id", y="product_category", data=top_5, palette="rocket", ax=ax)
-    ax.set_title("5 Kategori Produk Teratas", fontsize=18, color="#ffffff")
-    ax.set_xlabel("Jumlah Terjual", fontsize=12, color="#ffffff")
+    st.subheader("🏆 Kategori Produk Terlaris (Pertanyaan Bisnis 1)")
+    st.caption("Menjawab kategori produk mana yang memiliki volume penjualan tertinggi.")
+    
+    fig, ax = plt.subplots(figsize=(12, 8))
+    top_items = sum_order_items_df.head(10)
+    
+    # Gradient colors
+    colors = sns.color_palette("Blues_r", n_colors=10)
+    sns.barplot(x="product_count", y="product_category", data=top_items, palette=colors, ax=ax)
+    
+    ax.set_title("10 Kategori Produk dengan Volume Penjualan Tertinggi", fontsize=18, color="#ffffff", pad=15)
+    ax.set_xlabel("Jumlah Item Terjual", fontsize=12, color="#ffffff")
     ax.set_ylabel(None)
     st.pyplot(fig)
 
 with col2:
-    st.subheader("📍 Persebaran Pelanggan")
-    fig, ax = plt.subplots(figsize=(12, 10))
-    top_states = bystate_df.sort_values(by="customer_count", ascending=False).head(10)
-    sns.barplot(x="customer_count", y="customer_state", data=top_states, palette="mako", ax=ax)
-    ax.set_title("10 Negara Bagian dengan Pelanggan Terbanyak", fontsize=18, color="#ffffff")
+    st.subheader("📍 Persebaran Pelanggan per Wilayah")
+    st.caption("Informasi demografis pelanggan untuk mendukung strategi pemasaran.")
+    
+    fig, ax = plt.subplots(figsize=(12, 8))
+    top_states = bystate_df.head(10)
+    sns.barplot(x="customer_count", y="customer_state", data=top_states, palette="viridis", ax=ax)
+    
+    ax.set_title("10 Negara Bagian dengan Pelanggan Terbanyak", fontsize=18, color="#ffffff", pad=15)
     ax.set_xlabel("Jumlah Pelanggan", fontsize=12, color="#ffffff")
     ax.set_ylabel(None)
     st.pyplot(fig)
 
 st.markdown("---")
 
-# Row 3: RFM Analysis
-st.subheader("💎 Segmentasi Pelanggan (Analisis RFM)")
-rfm_col1, rfm_col2, rfm_col3 = st.columns(3)
+# Conclusion Section (Mirroring Notebook)
+st.subheader("🏁 Kesimpulan & Rekomendasi")
+con_col1, con_col2 = st.columns(2)
 
-# Function to plot RFM
-def plot_rfm(data, col, title, ylabel, is_monetary=False):
-    data['customer_id_short'] = data['customer_id'].str[:8] + "..."
-    # High contrast colors for bars
-    bar_colors = ["#00d4ff" if i == 0 else "#2d3748" for i in range(len(data))]
-    sns.barplot(y=col, x="customer_id_short", data=data, palette=bar_colors, ax=ax)
-    ax.set_title(title, fontsize=20, color="#ffffff")
-    ax.set_ylabel(ylabel, fontsize=15, color="#ffffff")
-    ax.set_xlabel(None)
-    ax.tick_params(axis='x', rotation=45, colors="#ffffff")
-    ax.tick_params(axis='y', colors="#ffffff")
-    for b in ax.spines.values():
-        b.set_edgecolor('#4a5568')
-    
-    for i, v in enumerate(data[col]):
-        label = f"R$ {v:,.0f}" if is_monetary else str(v)
-        ax.text(i, v, label, ha='center', va='bottom', fontsize=12, fontweight='bold', color="#00d4ff")
+with con_col1:
+    st.info("#### Kesimpulan Analisis")
+    st.markdown("""
+    1. **Produk Dominan**: Kategori **Bed Bath Table** dan **Health Beauty** adalah penggerak volume penjualan utama. Hal ini menunjukkan fokus konsumen pada kebutuhan rumah tangga dan perawatan diri.
+    2. **Momen Emas**: Bulan **November** adalah periode kritis bagi bisnis dengan volume pesanan tertinggi secara musiman, dipicu oleh Black Friday.
+    3. **Konsentrasi Geografis**: Mayoritas pelanggan terpusat di negara bagian SP (Sao Paulo), yang menunjukkan pusat aktivitas ekonomi e-commerce.
+    """)
 
-# Recency
-with rfm_col1:
-    fig, ax = plt.subplots(figsize=(10, 8))
-    plot_rfm(rfm_df.sort_values(by="recency", ascending=True).head(5), "recency", "Top Customers by Recency", "Days since last purchase")
-    st.pyplot(fig)
+with con_col2:
+    st.success("#### Rekomendasi Strategis")
+    st.markdown("""
+    1. **Optimasi Stok**: Tingkatkan ketersediaan stok untuk kategori *top-performer* minimal 20% sebelum memasuki kuartal keempat (Q4).
+    2. **Targeting Marketing**: Fokuskan kampanye iklan berbayar pada wilayah dengan kepadatan pelanggan tinggi (SP, RJ, MG) untuk efisiensi budget.
+    3. **Persiapan Black Friday**: Siapkan kapasitas logistik dan server tambahan di bulan Oktober untuk mengantisipasi lonjakan ekstrim di bulan November.
+    """)
 
-# Frequency
-with rfm_col2:
-    fig, ax = plt.subplots(figsize=(10, 8))
-    plot_rfm(rfm_df.sort_values(by="frequency", ascending=False).head(5), "frequency", "Top Customers by Frequency", "Number of Purchases")
-    st.pyplot(fig)
-
-# Monetary
-with rfm_col3:
-    fig, ax = plt.subplots(figsize=(10, 8))
-    plot_rfm(rfm_df.sort_values(by="monetary", ascending=False).head(5), "monetary", "Top Customers by Monetary", "Total Spend", True)
-    st.pyplot(fig)
-
+# Footer
+st.markdown("---")
 st.caption(f'Terakhir diperbarui pada: {pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")}')
-st.caption('Copyright © Aditya Maulana Pamungkas 2026')
+st.caption('Dicoding Data Analysis Project | Aditya Maulana Pamungkas')

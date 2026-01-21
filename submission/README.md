@@ -1,74 +1,73 @@
 # Data Analysis Project: E-Commerce Public Dataset
 
 ## Ringkasan Proyek
-Proyek ini bertujuan untuk melakukan analisis mendalam terhadap **Brazilian E-Commerce Public Dataset** yang disediakan oleh Olist. Fokus utama adalah mengekstraksi wawasan berharga (actionable insights) mengenai performa bisnis, tren pertumbuhan, perilaku pelanggan, dan efektivitas kategori produk untuk mendukung pengambilan keputusan strategis.
+Proyek ini merupakan analisis data end-to-end pada **Brazilian E-Commerce Public Dataset** oleh Olist. Tujuan utama proyek ini adalah untuk memberikan wawasan berbasis data (data-driven insights) mengenai performa penjualan, tren musiman, dan kategori produk unggulan guna mendukung pengambilan keputusan strategis bisnis.
+
+## Rumusan Masalah (SMART Questions)
+Analisis ini dirancang untuk menjawab pertanyaan bisnis yang spesifik, terukur, dan berbasis data:
+1.  **Analisis Kategori Produk**: Kategori produk apa yang memiliki volume penjualan tertinggi berdasarkan jumlah item terjual selama periode pengamatan (2016-2018), dan bagaimana implikasinya terhadap strategi stok serta pemasaran?
+2.  **Analisis Tren & Musiman**: Bagaimana tren penjualan bulanan berdasarkan jumlah order selama periode 2016-2018, dan apakah terdapat pola musiman yang dapat dimanfaatkan untuk perencanaan operasional?
 
 ## Analisis yang Dilakukan
-Dalam proyek ini, langkah-langkah analisis data yang komprehensif telah diimplementasikan:
-1.  **Data Wrangling**: Mengumpulkan data dari berbagai tabel, membersihkan data yang hilang (missing values), duplikasi, serta memastikan tipe data sudah sesuai (terutama kolom tanggal).
-2.  **Exploratory Data Analysis (EDA)**: Mengeksplorasi keterkaitan antar variabel, menghitung statistik deskriptif, dan mengidentifikasi pola penjualan serta distribusi pelanggan.
-3.  **Visualization & Explanatory Analysis**: Menjawab pertanyaan bisnis seperti:
-    *   Bagaimana tren jumlah pesanan bulanan selama periode tertentu?
-    *   Kategori produk apa yang paling banyak diminati oleh pelanggan?
-    *   Bagaimana persebaran geografis pelanggan di berbagai negara bagian?
-4.  **RFM Analysis**: Mengelompokkan pelanggan berdasarkan tingkat kebaruan transaksi (Recency), frekuensi pembelian (Frequency), dan total nilai ekonomi pelanggan (Monetary).
+Proyek ini mengimplementasikan siklus data analisis yang ketat:
+- **Data Wrangling**: Pengumpulan data, pembersihan data secara komprehensif (handling missing values, konversi tipe data datetime, validasi kronologi), dan integrasi dataset.
+- **Exploratory Data Analysis (EDA)**: Analisis statistik deskriptif mendalam (`describe`, `include='all'`), analisis distribusi (histogram), deteksi outlier (boxplots), serta analisis korelasi (`corr`) dan kovarians.
+- **Visualization & Explanatory Analysis**: Visualisasi tren bulanan dan performa kategori produk menggunakan Matplotlib dan Seaborn.
+- **Conclusion & Recommendations**: Memberikan temuan spesifik (seperti dominasi kategori *Bed Bath Table* dan lonjakan *Black Friday*) serta rekomendasi aksi nyata (aksi stok, strategi pemasaran, dan operasional).
 
 ## Struktur Repositori
 ```text
 .
-├── dashboard/
+├── Dashboard/
 │   ├── dashboard.py         # Script utama dashboard Streamlit
-│   ├── all_data.csv        # Dataset yang telah dibersihkan & digabung
 │   └── requirements.txt     # Dependensi khusus untuk dashboard
-├── data/                    # Folder berisi dataset mentah (CSV)
-├── Proyek_Analisis_Data.ipynb # Dokumentasi lengkap proses analisis
-├── requirements.txt         # Seluruh dependensi python projek
-├── README.md                # Panduan dokumentasi ini
-└── ...
+├── Data/                    # Folder berisi dataset mentah (CSV)
+├── all_data.csv             # Dataset final hasil cleaning & integrasi
+├── notebook_revisi.ipynb    # Notebook dokumentasi proses analisis lengkap
+├── requirements.txt         # Seluruh dependensi python utama projek
+└── README.md                # Dokumentasi proyek ini
 ```
 
 ## Persiapan Lingkungan (Setup Environment)
-Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
+Gunakan instruksi berikut untuk menjalankan proyek di komputer Anda:
 
-### 1. Menggunakan Anaconda/Conda (Opsional tapi Direkomendasikan)
+### 1. Persiapan Virtual Environment
 ```bash
-conda create --name ecommerce-ds python=3.13
-conda activate ecommerce-ds
-pip install -r requirements.txt
-```
-
-### 2. Menggunakan Virtual Environment (Python venv)
-```bash
-# Untuk Windows:
+# Membuat environment
 python -m venv venv
+
+# Aktivasi environment (Windows)
 .\venv\Scripts\activate
 
-# Untuk macOS/Linux:
-python -m venv venv
+# Aktivasi environment (macOS/Linux)
 source venv/bin/activate
 
-# Install Dependensi:
+# Install Dependensi
 pip install -r requirements.txt
 ```
 
 ## Cara Menjalankan Dashboard
-Dashboard dibangun menggunakan **Streamlit** untuk menyajikan data secara interaktif.
+Dashboard interaktif dapat dijalankan untuk mengeksplorasi temuan secara visual.
 
-1.  Buka terminal/command prompt.
-2.  Pastikan Anda berada di direktori proyek.
-3.  Arahkan ke folder dashboard: `cd dashboard`
-4.  Jalankan dashboard dengan perintah:
+1.  Pastikan dependensi dashboard terinstall jika belum:
+    ```bash
+    pip install -r Dashboard/requirements.txt
+    ```
+2.  Masuk ke direktori dashboard:
+    ```bash
+    cd Dashboard
+    ```
+3.  Jalankan aplikasi streamlit:
     ```bash
     streamlit run dashboard.py
     ```
-5.  Link lokal dashboard akan muncul (biasanya `http://localhost:8501`).
 
 ## Fitur Utama Dashboard
-*   **Overview Performa**: Menampilkan metrik utama seperti Total Transaksi dan Total Revenue.
-*   **Seasonal Trends**: Visualisasi pertumbuhan pesanan dari waktu ke waktu.
-*   **Best & Worst Products**: Analisis kategori produk berdasarkan jumlah penjualan.
-*   **Customer Demographics**: Melihat wilayah mana yang menjadi pasar utama.
-*   **RFM Insights**: Segmentasi pelanggan untuk strategi pemasaran berbasis data.
+*   **Business Overview Metrics**: Pantau Total Pesanan, Total Pendapatan, dan Total Pelanggan secara real-time.
+*   **Monthly Sales Trend**: Analisis pertumbuhan bulanan dengan highlight pada periode puncak (Black Friday).
+*   **Top Product Categories**: Visualisasi kategori produk dengan volume penjualan tertinggi.
+*   **Geographic Distribution**: Persebaran pelanggan berdasarkan negara bagian (states).
+*   **Actionable Recommendations**: Strategi bisnis langsung berdasarkan hasil temuan data.
 
 ## Identitas Penulis
 - **Nama:** Aditya Maulana Pamungkas
