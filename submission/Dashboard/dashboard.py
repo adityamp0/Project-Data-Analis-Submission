@@ -137,7 +137,7 @@ with col3:
 st.markdown("---")
 
 # Row 1: Monthly Sales Trend (Question 2)
-st.subheader("📈 Tren Penjualan Bulanan (Pertanyaan Bisnis 2)")
+st.subheader("📈 Tren Penjualan Bulanan")
 st.caption("Visualisasi ini menjawab pola tren dan musiman penjualan selama periode pengamatan.")
 
 fig, ax = plt.subplots(figsize=(16, 6))
@@ -169,7 +169,7 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("🏆 Kategori Produk Terlaris (Pertanyaan Bisnis 1)")
+    st.subheader("🏆 Kategori Produk Terlaris")
     st.caption("Menjawab kategori produk mana yang memiliki volume penjualan tertinggi.")
     
     fig, ax = plt.subplots(figsize=(12, 8))
