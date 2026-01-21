@@ -100,15 +100,17 @@ with st.sidebar:
     min_date = all_df["order_purchase_timestamp"].min()
     max_date = all_df["order_purchase_timestamp"].max()
     
-    try:
-        start_date, end_date = st.date_input(
-            label='Pilih Rentang Waktu',
-            min_value=min_date,
-            max_value=max_date,
-            value=[min_date, max_date]
-        )
-    except ValueError:
-        st.error("Mohon pilih rentang waktu yang valid.")
+    date_range = st.date_input(
+        label='Pilih Rentang Waktu',
+        min_value=min_date,
+        max_value=max_date,
+        value=[min_date, max_date]
+    )
+    
+    if len(date_range) == 2:
+        start_date, end_date = date_range
+    else:
+        st.info("Silakan pilih rentang tanggal mulai dan akhir pada kalender untuk melihat data.")
         st.stop()
 
 # Filter Main Data
