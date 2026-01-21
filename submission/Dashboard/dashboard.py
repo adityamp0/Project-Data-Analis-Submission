@@ -59,10 +59,8 @@ def load_data():
 <<<<<<< HEAD
     file_path = os.path.join(current_dir, "main_data.csv")
 =======
-    # Try local main_data.csv first, then all_data.csv in parent
+    # Try local main_data.csv first
     file_path = os.path.join(current_dir, "main_data.csv")
-    if not os.path.exists(file_path):
-        file_path = os.path.join(os.path.dirname(current_dir), "all_data.csv")
     
 >>>>>>> c174b96 (Submission)
     df = pd.read_csv(file_path)
