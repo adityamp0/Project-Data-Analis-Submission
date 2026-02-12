@@ -3,6 +3,9 @@
 ## Ringkasan Proyek
 Proyek ini merupakan analisis data end-to-end pada **Brazilian E-Commerce Public Dataset** oleh Olist. Tujuan utama proyek ini adalah untuk memberikan wawasan berbasis data (data-driven insights) mengenai performa penjualan, tren musiman, dan kategori produk unggulan guna mendukung pengambilan keputusan strategis bisnis.
 
+## URL Project
+https://d8wib5lqp8hteufjx9xrxp.streamlit.app/
+
 ## Rumusan Masalah (SMART Questions)
 Analisis ini dirancang untuk menjawab pertanyaan bisnis yang spesifik, terukur, dan berbasis data:
 1.  **Analisis Kategori Produk**: Kategori produk apa yang memiliki volume penjualan tertinggi berdasarkan jumlah item terjual selama periode pengamatan (2016-2018), dan bagaimana implikasinya terhadap strategi stok serta pemasaran?
